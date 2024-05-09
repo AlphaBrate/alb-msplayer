@@ -1,3 +1,6 @@
+> [!NOTE]  
+> The project is completely free and does not require a license, making it available for use in your personal projects. For AlphaBrate Music, please refer to [AlphaBrate/Music](https://github.com/alphabrate/music)
+
 <p align="center">
     <h1 align="center">AlphaBrate Music Player</h1>
 </p>
