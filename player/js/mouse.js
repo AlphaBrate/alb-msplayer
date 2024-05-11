@@ -1,9 +1,3 @@
-// This Open-sourced player by AlphaBrate is under the APEL License.
-// As this project is done by individual from AlphaBrate, the terms, naming may not be professional.
-// © AlphaBrate 2022 - 2024
-// File: mouse.js
-// Right click event
-
 var x, y;
 document.body.addEventListener('contextmenu', function (e) {
     // When right clicked, show context menu
@@ -108,15 +102,24 @@ document.body.addEventListener('click', function (e) {
         menu.style.animation = 'none';
         menu.style.pointerEvents = 'none';
     }
-    if (alert_boxes.length > 0 && t.className === 'player') {
+    if (alert_boxes.length > 0 && t.className === 'player' || t.id === 'albumArt') {
         alert_boxes[alert_boxes.length - 1].style.animation = 'slideout .5s';
         // remove from array
         try {
+            let id = alert_boxes[alert_boxes.length - 1].id;
+            if (id) {
+                // remove id from alerts_toggled
+                let index = alerts_toggled.indexOf(id);
+                if (index > -1) {
+                    alerts_toggled.splice(index, 1);
+                }
+            }
+
             setTimeout(() => {
                 alert_boxes[alert_boxes.length - 1].remove();
                 alert_boxes.pop();
             }, 500);
-        } catch {}
+        } catch { }
     }
 });
 
@@ -189,6 +192,13 @@ document.body.addEventListener('touchmove', function (e) {
 document.body.addEventListener('touchend', function (e) {
     if (e.target.className === 'large-alert') {
         // if the alert is moved more than 50% of the screen, remove the alert
+        if (alerts_toggled.includes(e.target.id)) {
+            // remove from array
+            let index = alerts_toggled.indexOf(e.target.id);
+            if (index > -1) {
+                alerts_toggled.splice(index, 1);
+            }
+        }
         var y = e.changedTouches[0].clientY;
         var dy = y - touch.start_y;
         var percentage = dy / window.innerHeight * 100;

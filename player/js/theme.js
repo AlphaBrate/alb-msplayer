@@ -1,8 +1,3 @@
-// This Open-sourced player by AlphaBrate is under the APEL License.
-// As this project is done by individual from AlphaBrate, the terms, naming may not be professional.
-// © AlphaBrate 2022 - 2024
-// File: theme.js
-
 function removetheme() {
     // Remove all style sheets, apart from player.css
     var styles = document.querySelectorAll('link');

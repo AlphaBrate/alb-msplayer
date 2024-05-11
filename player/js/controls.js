@@ -1,9 +1,3 @@
-// This Open-sourced player by AlphaBrate is under the APEL License.
-// As this project is done by individual from AlphaBrate, the terms, naming may not be professional.
-// © AlphaBrate 2022 - 2024
-// File: controls.js
-// Play song
-
 function playSong() {
     var audio = document.getElementById('audio');
     audio.play();
@@ -60,7 +54,7 @@ function checkPlaying() {
         totalSecond = '0' + totalSecond;
     }
     duration.innerHTML = currentMinute + ':' + currentSecond + '/' + totalMinute + ':' + totalSecond;
-    
+
     if (audio.paused) {
         toggle.setAttribute('data-playing', 'false');
         toggleIcon.src = toggleIcons[0];
@@ -110,26 +104,135 @@ document.getElementById('tc').addEventListener('input', function () {
     audio.currentTime = currentTime;
 });
 
-function next() {
-    // five seconds forward
+const nextSong = () => next();
+const previousSong = () => {
+    prev_from = true;
+    previous();
+};
+
+function playSongFromList(i) {
+    if (i >= list_data.length) {
+        i = 0;
+    }
+    if (i < 0) {
+        i = list_data.length - 1;
+    }
+    let song = list_data[i];
+    searchParams.set('song', song.song);
+    searchParams.set('artist', song.artist);
+    searchParams.set('album', song.album);
+    searchParams.set('year', song.year);
+    if (song.song_direct_url) searchParams.set('song_direct_url', song.song_direct_url);
+    if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
+    if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
+    searchParams.set('index', i + 1);
+    window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
+    // change song src
     var audio = document.getElementById('audio');
-    audio.currentTime += 5;
-    // Update time cursor
-    setTimeCursor();
+    audio.src = paths.sounds + song.song + ado_ext;
+    // change album art
+    var albumArt = document.getElementById('albumArt');
+    let img = paths.img + song.album + img_ext;
+    albumArt.src = img;
+    // change song title
+    var songTitle = document.getElementById('title');
+    songTitle.innerHTML = song.song;
+
+    // change font size
+    if (song.song.length > 20) {
+        songTitle.style.fontSize = '1.6rem';
+    } else if (songName.length > 30) {
+        songTitle.style.fontSize = '1.2rem';
+    } else {
+        songTitle.style.fontSize = '2rem';
+    }
+
+    // change artist
+    var artist = document.getElementById('artist');
+    artist.innerHTML = song.artist;
+    // change album
+    var album = document.getElementById('album');
+    album.innerHTML = song.album;
+    // change year
+    var year = document.getElementById('year');
+    year.innerHTML = song.year;
+    // change background
+    document.body.style.backgroundImage = 'url(' + encodeURIComponent(img) + ')';
+    playSong();
+
+    // Change variables
+    songName = song.song;
+    artistName = song.artist;
+    albumName = song.album;
+    albumYear = song.year;
+    albumArt = img;
+
+    // Update mediaSession
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.song,
+            artist: song.artist,
+            album: song.album,
+            artwork: [{ src: img, sizes: '512x512', type: 'image/png' }]
+        });
+    }
+    if (alerts_toggled.includes('details')) {
+        app.details();
+        setTimeout(() => {
+            app.details();
+        }, 1000);
+    }
+}
+
+function next() {
+    // Go to next song in the list
+    let currentSongIndex = searchParams.get('index') - 1;
+    console.log(currentSongIndex);
+    let nextSongIndex = currentSongIndex + 1;
+
+    if (localStorage.getItem('shuffle') === 'true') {
+        nextSongIndex = Math.floor(Math.random() * list_data.length);
+    }
+
+    playSongFromList(nextSongIndex);
 }
 document.getElementById('next').addEventListener('click', next);
 
 var songEnded = () => {
     // What to do when song ended
+    // if loop is false and autoplay is true, go to next song
+    console.log(localStorage);
+    if (localStorage.getItem('loop') != 'true' && localStorage.getItem('autoplay') == 'true') {
+        next();
+    }
 };
 
+if (localStorage.getItem('duration') === 'true') {
+    document.getElementById('duration').style.opacity = 1;
+}
+
 // On click button#previous
+var prev_from = false;
 function previous() {
+    if (prev_from) {
+        // Go to previous song in the list
+        let currentSongIndex = searchParams.get('index') - 1;
+        let prevSongIndex = currentSongIndex - 1;
+        playSongFromList(prevSongIndex);
+        return
+    }
+
+    prev_from = true;
+
     // all the way back
     var audio = document.getElementById('audio');
     audio.currentTime = 0;
     // Update time cursor
     setTimeCursor();
+
+    setTimeout(() => {
+        prev_from = false;
+    }, 2000);
 }
 document.getElementById('prev').addEventListener('click', previous);
 

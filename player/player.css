@@ -1,10 +1,4 @@
-/* This Open-sourced player by AlphaBrate is under the APEL License. */
-/* As this project is done by individual from AlphaBrate, the terms, naming may not be professional. */
-/* © AlphaBrate 2022 - 2024 */
-/* File: player.css */
-
 :root {
-    /* Colors */
     --editor-bg-light: #e7e7e7;
     --editor-bg-dark: #1e1e1e;
     --editor-bg: var(--editor-bg-light);
@@ -30,17 +24,10 @@
     --editor-bg-hightlight: var(--editor-bg-hightlight-light);
     --editor-bg-hightlight-hover-light: #0000002f;
     --editor-bg-hightlight-hover-dark: #ffffff2f;
-
-
-    /* Urls */
-    --logo-light: url(../images/logos/heligma_on_light_text.svg);
-    --logo-dark: url(../images/logos/heligma_on_dark_text.svg);
-    --logo: var(--logo-light);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* Colors */
         --editor-bg: var(--editor-bg-dark);
         --editor-nav: var(--editor-nav-dark);
         --editor-text: var(--editor-text-dark);
@@ -50,15 +37,12 @@
         --editor-shawdow: var(--editor-shawdow-dark);
         --editor-bg-hightlight: var(--editor-bg-hightlight-dark);
         --editor-bg-hightlight-hover: var(--editor-bg-hightlight-hover-dark);
-
-        /* Urls */
         --logo: var(--logo-dark);
     }
 }
 
 @media (prefers-color-scheme: light) {
     :root {
-        /* Colors */
         --editor-bg: var(--editor-bg-light);
         --editor-nav: var(--editor-nav-light);
         --editor-text: var(--editor-text-light);
@@ -222,6 +206,10 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
+}
+
+*[onclick] {
+    cursor: pointer;
 }
 
 .s {
@@ -543,6 +531,12 @@ img.icon {
     font-family: 'EB Garamond', 'Times New Roman', Times, serif;
 }
 
+.current::before {
+    content: '😍';
+    position: absolute;
+    transform: translate(-120%, -5%);
+}
+
 .large-alert {
     position: fixed;
     z-index: 998;
@@ -590,7 +584,8 @@ img.icon {
     pointer-events: none;
     border: 1px solid var(--editor-border);
 
-    &, * {
+    &,
+    * {
         font-family: 'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
 

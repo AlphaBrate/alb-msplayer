@@ -1,17 +1,56 @@
-// This Open-sourced player by AlphaBrate is under the APEL License.
-// As this project is done by individual from AlphaBrate, the terms, naming may not be professional.
-// © AlphaBrate 2022 - 2024
-// File: player.js
-// Get search query from url
-
 const paths = {
-    img: '/player/assets/defaults/art/',
-    sounds: '/player/assets/defaults/music/'
+    img: 'assets/defaults/art/',
+    sounds: 'assets/defaults/music/',
+    lists: 'assets/defaults/lists/',
 };
 
 var search = window.location.search;
 var searchParams = new URLSearchParams(search);
 var search_json = searchParams.get('s');
+var list_a = searchParams.get('list');
+var list_done = searchParams.get('list_done');
+
+var list_data = {};
+if (list_a) {
+    fetch(paths.lists + list_a + '.json')
+        .then(response => response.json())
+        .then(data => {
+            var songs = data.songs;
+
+            list_data = data.songs;
+
+            if (songs.length == 0) {
+                Alert('No songs in this list.', 'error', 2000);
+                return;
+            }
+
+            if (list_done) return;
+
+            if (searchParams.get('index')) {
+                var index = searchParams.get('index');
+                if (index > songs.length) {
+                    Alert('Invalid index.', 'error', 2000);
+                    return;
+                }
+                var song = songs[index - 1];
+            } else {
+                var song = songs[0];
+            }
+
+            console.log(data.song);
+            searchParams.set('song', song.song);
+            searchParams.set('album', song.album);
+            searchParams.set('year', song.year);
+            searchParams.set('artist', song.artist);
+            searchParams.set('list_done', 'true');
+            if (song.song_direct_url) searchParams.set('song_direct_url', song.song_direct_url);
+            if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
+            if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
+            searchParams.set('index', songs.indexOf(song) + 1);
+            window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
+            location.reload();
+        });
+}
 
 if (search_json) {
     search = JSON.parse(decodeURI(search_json));
@@ -37,7 +76,7 @@ var fromUrl = song_direct_url != '' && album_art_direct_url != '' && detail_dire
 const albumArtElement = document.getElementById('albumArt');
 const audio = document.getElementById('audio');
 
-var img_ext = '.png';
+var img_ext = '.webp';
 var albumArt = album_art_direct_url || paths.img + albumName + img_ext; // Change this to the path of the album art
 
 if (albumName != '') {
@@ -52,6 +91,17 @@ audio.src = song_direct_url || paths.sounds + songName + ado_ext; // Change this
 // Change song title
 var songTitle = document.getElementById('title');
 songTitle.innerHTML = songName;
+
+// For Title, try best make sure it's in one line, adjust font-size if needed
+if (songName.length > 20) {
+    songTitle.style.fontSize = '1.6rem';
+} else if (songName.length > 30) {
+    songTitle.style.fontSize = '1.2rem';
+} else {
+    songTitle.style.fontSize = '2rem';
+}
+
+
 // Change artist
 var artist = document.getElementById('artist');
 artist.innerHTML = artistName;
@@ -64,10 +114,17 @@ year.innerHTML = albumYear;
 
 var alert_boxes = [];
 
-const AlertL = (html) => {
+const AlertL = (html, scroll = false, id) => {
     var a = document.createElement('div');
     a.innerHTML = html;
     a.className = 'large-alert';
+    if (scroll) {
+        a.style.display = 'block';
+        a.style.overflowY = 'scroll';
+    };
+
+    if (id) a.id = id;
+
     document.body.appendChild(a);
     alert_boxes.push(a);
 }
@@ -128,9 +185,13 @@ oneLinkHref = () => {
     return location.origin + location.pathname + '?s=' + encodeURI(JSON.stringify(search_json));
 };
 
+var alerts_toggled = [];
+
 const app = {
     share: () => {
-        AlertL(`
+        if (!alerts_toggled.includes('share')) {
+            alerts_toggled.push('share');
+            AlertL(`
 <h1>Share This Song</h1>
 <button class="alphabrate-styled-button" onclick="app.copyLink()">
     <img src="assets/icons/contextMenu/link.svg">
@@ -153,7 +214,17 @@ const app = {
     <img src="assets/icons/contextMenu/ar.svg">
     <span>Share form your Device</span>
 </button>
-`);
+`, false, 'share');
+        } else {
+            $('#share').style.animation = 'slideout .5s';
+            // remove from array
+            try {
+                setTimeout(() => {
+                    $('#share').remove();
+                    alerts_toggled.pop('share');
+                }, 500);
+            } catch { }
+        }
     },
     shareApp: () => {
         // Device Share
@@ -181,7 +252,9 @@ const app = {
         }
     },
     settings: () => {
-        AlertL(`
+        if (!alerts_toggled.includes('settings')) {
+            alerts_toggled.push('settings');
+            AlertL(`
 <div class"left-aligned">
     <h1>Settings</h1>
     <div class="flex left-aligned gap sameWidth">
@@ -207,25 +280,41 @@ const app = {
         <font>Show Duration</font>
         <span class="switch settings" onclick="app.toggle.duration();" id="s.duration"></span>
     </div>
+    <div class="flex left-aligned gap sameWidth">
+        <font>Shuffle All Songs</font>
+        <span class="switch settings" onclick="app.toggle.shuffle();" id="s.shuffle"></span>
+    </div>
         
     </div>
 </div>
-        `);
+        `, false, 'settings');
 
-        document.querySelectorAll('.switch').forEach((s) => {
-            s.addEventListener('click', () => {
-                s.classList.toggle('checked');
+            document.querySelectorAll('.switch').forEach((s) => {
+                s.addEventListener('click', () => {
+                    s.classList.toggle('checked');
+                });
             });
-        });
 
-        // get all items from local storage, check if there is a switch with the same s.id, if there is, add class checked
-        var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration'];
-        settings.forEach((s) => {
-            if (localStorage.getItem(s) == 'true') {
-                var switch_ = document.getElementById('s.' + s);
-                switch_.classList.add('checked');
-            }
-        });
+            // get all items from local storage, check if there is a switch with the same s.id, if there is, add class checked
+            var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration', 'shuffle'];
+            settings.forEach((s) => {
+                if (localStorage.getItem(s) == 'true') {
+                    var switch_ = document.getElementById('s.' + s);
+                    switch_.classList.add('checked');
+                }
+            });
+        }
+        else {
+            $('#settings').style.animation = 'slideout .5s';
+            // remove from array
+            try {
+                setTimeout(() => {
+                    $('#settings').remove();
+                    alerts_toggled.pop('settings');
+                }, 500);
+            } catch { }
+        }
+
     },
     toggle: {
         autoplay: () => {
@@ -242,6 +331,14 @@ const app = {
                 localStorage.setItem('dev', 'false');
             } else {
                 localStorage.setItem('dev', 'true');
+            }
+        },
+        shuffle: () => {
+            let shuffle = localStorage.getItem('shuffle');
+            if (shuffle == 'true') {
+                localStorage.setItem('shuffle', 'false');
+            } else {
+                localStorage.setItem('shuffle', 'true');
             }
         },
         hideOnLock: () => {
@@ -275,7 +372,36 @@ const app = {
         }
     },
     details: () => {
-        AlertL(`
+        if (alerts_toggled.includes('details')) {
+            $('#details').style.animation = 'slideout .5s';
+            // remove from array
+            try {
+                setTimeout(() => {
+                    $('#details').remove();
+                    alerts_toggled.pop('details');
+                }, 500);
+            } catch { }
+        } else {
+            let LIST = '';
+            if (list_data.length > 0) {
+                LIST = `<div class="separator"></div>
+<h1>Songs</h1>
+<div class="flex col left-aligned">
+    ${list_data.map((s, i) => {
+                    let CURRENT = '';
+                    if (s.song == songName) {
+                        CURRENT = ' current';
+                    }
+                    return `
+    <div class="flex left-aligned gap sameWidth${CURRENT}" onclick="playSongFromList(${i})">
+        <font>${i + 1}.</font>
+        <font>${s.song}</font>
+    </div>
+    `;
+                }).join('')}
+</div>`;
+            }
+            AlertL(`
 <h1>Details</h1>
 <div class="flex col center">
     <div class="flex left-aligned gap sameWidth">
@@ -303,12 +429,15 @@ const app = {
         <font style="color: gray;">Audio:</font>
         <font><a href="${audio.src}" target="_blank">View</a></font>
     </div>
+    ${LIST}
+    <div class="separator"></div>
     <div class="flex center gap sameWidth">
-        <font style="color: gray;">Details:</font>
-        <font><a href="${detail_direct_url}" target="_blank">View</a></font>
+        <font style="color: gray;">© ReTrn 2022 - 2024. All rights reserved.</font>
     </div>
 </div>
-`);
+`, true, 'details');
+            alerts_toggled.push('details');
+        }
     }
 }
 
@@ -333,15 +462,11 @@ function mediaSession() {
         });
 
         navigator.mediaSession.setActionHandler('previoustrack', function () {
-            // Change to previous track
-            // Or back to start of the track
-            audio.currentTime = 0;
+            previous();
         });
 
         navigator.mediaSession.setActionHandler('nexttrack', function () {
-            // Change to next track
-            // Or next 10s
-            audio.currentTime += 10;
+            next();
         });
 
         navigator.mediaSession.setActionHandler('stop', function () {

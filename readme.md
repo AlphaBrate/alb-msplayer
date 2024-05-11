@@ -1,6 +1,3 @@
-> [!NOTE]  
-> The project is completely free and does not require a license, making it available for use in your personal projects. For AlphaBrate Music, please refer to [AlphaBrate/Music](https://github.com/alphabrate/music)
-
 <p align="center">
     <h1 align="center">AlphaBrate Music Player</h1>
 </p>
@@ -92,12 +89,6 @@ start index.html
 
 3.1. Default songs are provided.
 
-`Love Story - Taylor Swift`
-
-```url
-index.html?song=Love+Story&artist=Taylor+Swift&year=2009&album=Love+Story
-```
-
 ---
 
 ## 🖊️ Edit for you Own
@@ -109,8 +100,10 @@ index.html?song=Love+Story&artist=Taylor+Swift&year=2009&album=Love+Story
 ```js
 const paths = {
     img: '/player/assets/defaults/art/',
-    sounds: '/player/assets/defaults/music/'
+    sounds: '/player/assets/defaults/music/',
+	list: '/player/assets/defaults/lists/'
 };
 ```
 
-> Others waiting for the documentation.
+> [!WARNING]  
+> Please note that you cannot pulish this project with those default songs. (C) ReTrn 2024, All Rights Reserved.
