@@ -18,7 +18,8 @@
  <img src="https://img.shields.io/badge/HTML5-E34F26.svg?style=flat&logo=HTML5&logoColor=white" alt="HTML5">
 </p>
 <hr>
----
+
+Sample available here: [https://chutm.github.io/player/?list=all](https://chutm.github.io/player/?list=all)
 
 ## 📍 Overview
 
