@@ -18,8 +18,7 @@
  <img src="https://img.shields.io/badge/HTML5-E34F26.svg?style=flat&logo=HTML5&logoColor=white" alt="HTML5">
 </p>
 <hr>
-
-Sample available here: [https://chutm.github.io/player/?list=all](https://chutm.github.io/player/?list=all)
+---
 
 ## 📍 Overview
 
@@ -47,6 +46,7 @@ FREE TO USE, NO LICENSE REQUIRED
 - Mobile Friendly
 - Keyboard Shortcuts
 - Immersive Mode
+- Dynamic Lyrics (LRC)
 
 ---
 
@@ -74,6 +74,8 @@ start index.html
 
 3.1. Default songs are provided.
 
+3.2. Default List Provided, `?list=[LIST]`
+
 ---
 
 ## 🖊️ Edit for Your Own
@@ -90,26 +92,9 @@ const paths = {
 };
 ```
 
-### 🎨 Add Theme
-
-`player/js/theme.js`
-
-```js
-var THEME = () => {
-    // Add style sheet to document
-    removetheme();
-    theme('player.css'); // May not be necessary
-    theme('themes/THEME.css');
-    localStorage.setItem('theme', 'THEME');
-}
-```
-
-> Simply add a new theme file to the `player/css/themes/` directory and add a new line to the `THEME` function.
-
-
 <center>
     <p>Other files waiting for documentation.</p>
 </center>
 
 > [!WARNING]  
-> Please note that you cannot pulish this project with those default songs. (C) ReTrn 2024, All Rights Reserved.
+> Please note that you cannot pulish this project with any of default songs. For list `retrn`, (C) ReTrn 2024, All Rights Reserved. For other lists, AlphaBrate doesn't own any copyright.
