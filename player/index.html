@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-title" content="Music Player">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Music Player</title>
+    <link rel="manifest" href="manifest.json">
     <!-- theme color -->
     <link rel="stylesheet" href="player.css">
 </head>
@@ -23,14 +24,18 @@
             <img src="assets/icons/contextMenu/cloud.svg" alt="" class="icon">
             Show Details
         </div>
+        <div class="item" onclick="app.queue()">
+            <img src="assets/icons/contextMenu/list.svg" alt="" class="icon">
+            Show Queue
+        </div>
         <div class="item" onclick="app.settings()">
             <img src="assets/icons/contextMenu/settings.svg" alt="" class="icon">
             Player Settings
         </div>
         <div class="line"></div>
-        <div class="item" onclick="immerse(this)">
+        <div class="item" onclick="immerse(this)" id="lyrics_trig">
             <img src="assets/icons/contextMenu/immersive_stroke.svg" alt="" class="icon">
-            Immersive Theme
+            Lyrics
         </div>
     </div>
     <div class="alert">
@@ -39,14 +44,17 @@
     </div>
     <div id="large-alert"></div>
     <div class="back"></div>
+    <div class="theme-color-transit"></div>
     <span id="time">--:--</span>
     <audio src="" id="audio"></audio>
+    <div id="waveform"></div>
     <div class="player">
         <img src="assets/icons/base/placeholder.svg" alt="" id="albumArt">
+        <div class="lyrics"></div>
         <div class="s">
             <div class="up">
-                <div id="title">--</div>
-                <div class="queue" id="list"></div>
+                <div id="title" onclick="app.queue()">--</div>
+                <div class="current-lyric" onclick="document.getElementById('lyrics_trig').click();"></div>
                 <div id="artist">--</div>
                 <div id="album">--</div>
                 <div id="year">----</div>
@@ -72,23 +80,7 @@
     <script src="js/player.js"></script>
     <script src="js/controls.js"></script>
     <script src="js/theme.js"></script>
-    <script>
-        // Double click to skip to next song
-        // Triple click to skip to previous song
-        var clicks = 0;
-        var timer, timeout = 200;
-        document.getElementById('albumArt').addEventListener('click', function (e) {
-            clearTimeout(timer);
-            clicks++;
-            var evt = e;
-            timer = setTimeout(function () {
-                if (clicks == 1) toggleSong();
-                if (clicks == 2) nextSong();
-                if (clicks == 3) previousSong();
-                clicks = 0;
-            }, timeout)
-        });
-    </script>
+    <script src="js/lrc.js"></script>
 </body>
 
 </html>

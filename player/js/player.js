@@ -2,6 +2,7 @@ const paths = {
     img: 'assets/defaults/art/',
     sounds: 'assets/defaults/music/',
     lists: 'assets/defaults/lists/',
+    lyrics: 'assets/defaults/lyrics',
 };
 
 var search = window.location.search;
@@ -37,18 +38,24 @@ if (list_a) {
                 var song = songs[0];
             }
 
-            console.log(data.song);
+            document.title = `${song.song} - ${song.artist} | ${song.album}`;
             searchParams.set('song', song.song);
             searchParams.set('album', song.album);
             searchParams.set('year', song.year);
             searchParams.set('artist', song.artist);
             searchParams.set('list_done', 'true');
-            if (song.song_direct_url) searchParams.set('song_direct_url', song.song_direct_url);
+            copyright_info = song.copyright;
+            if (song.source) searchParams.set('source', song.source);
+            if (song.lyrics) searchParams.set('lyrics', song.lyrics);
+                else searchParams.set('lyrics', '');
+            if (song.song_direct_url) searchParams.set('song_direct_url', song.album_art_direct_url);
             if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
             if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
             searchParams.set('index', songs.indexOf(song) + 1);
             window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
             location.reload();
+
+            setLyrics();
         });
 }
 
@@ -62,21 +69,26 @@ if (search_json) {
     window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
 }
 
-var songName = searchParams.get('song') || 'Unknown';
-var albumName = searchParams.get('album') || songName;
-var albumYear = searchParams.get('year') || '';
-var artistName = searchParams.get('artist') || '';
+let songName = searchParams.get('song') || 'Unknown';
+let albumName = searchParams.get('album') || songName;
+let albumYear = searchParams.get('year') || '';
+let artistName = searchParams.get('artist') || '';
+let source = searchParams.get('source') || 'Unknown';
+let lyrics = searchParams.get('lyrics') || void 0;
 
-var song_direct_url = searchParams.get('song_direct_url') || void 0;
-var album_art_direct_url = searchParams.get('album_art_direct_url') || void 0;
-var detail_direct_url = searchParams.get('detail_direct_url') || void 0;
+document.title = `${songName} - ${artistName} | ${albumName}`
 
-var fromUrl = song_direct_url != '' && album_art_direct_url != '' && detail_direct_url != '';
+let copyright_info;
+
+let song_direct_url = searchParams.get('song_direct_url') || void 0;
+let album_art_direct_url = searchParams.get('album_art_direct_url') || void 0;
+let detail_direct_url = searchParams.get('detail_direct_url') || void 0;
+let fromUrl = song_direct_url != '' && album_art_direct_url != '' && detail_direct_url != '';
 
 const albumArtElement = document.getElementById('albumArt');
 const audio = document.getElementById('audio');
 
-var img_ext = '.webp';
+var img_ext = '.webp'; // !
 var albumArt = album_art_direct_url || paths.img + albumName + img_ext; // Change this to the path of the album art
 
 if (albumName != '') {
@@ -85,8 +97,9 @@ if (albumName != '') {
 }
 
 // Change audio source
-var ado_ext = '.mp3';
-audio.src = song_direct_url || paths.sounds + songName + ado_ext; // Change this to the path of the audio file
+var ado_ext = '.mp3'; // !
+audio.src = song_direct_url || paths.sounds + source; // Change this to the path of the audio file
+
 
 // Change song title
 var songTitle = document.getElementById('title');
@@ -114,7 +127,11 @@ year.innerHTML = albumYear;
 
 var alert_boxes = [];
 
+let originalBGC;
+
 const AlertL = (html, scroll = false, id) => {
+    originalBGC = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'rgba(46, 46, 46, 0.989)';
     var a = document.createElement('div');
     a.innerHTML = html;
     a.className = 'large-alert';
@@ -127,6 +144,8 @@ const AlertL = (html, scroll = false, id) => {
 
     document.body.appendChild(a);
     alert_boxes.push(a);
+
+    document.querySelector('.player').style.pointerEvents = 'none';
 }
 
 const $ = (s, a) => {
@@ -284,8 +303,10 @@ const app = {
         <font>Shuffle All Songs</font>
         <span class="switch settings" onclick="app.toggle.shuffle();" id="s.shuffle"></span>
     </div>
-        
-    </div>
+
+    <div class="separator"></div>
+
+        <p align="center">Read <a href="https://alphabrate.github.io/articles/user-manuals/music-player">User Guide</a>.</p>
 </div>
         `, false, 'settings');
 
@@ -296,7 +317,7 @@ const app = {
             });
 
             // get all items from local storage, check if there is a switch with the same s.id, if there is, add class checked
-            var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration', 'shuffle'];
+            var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration', 'shuffle', 'lyricsLockScreen'];
             settings.forEach((s) => {
                 if (localStorage.getItem(s) == 'true') {
                     var switch_ = document.getElementById('s.' + s);
@@ -381,27 +402,9 @@ const app = {
                     alerts_toggled.pop('details');
                 }, 500);
             } catch { }
-        } else {
-            let LIST = '';
-            if (list_data.length > 0) {
-                LIST = `<div class="separator"></div>
-<h1>Songs</h1>
-<div class="flex col left-aligned">
-    ${list_data.map((s, i) => {
-                    let CURRENT = '';
-                    if (s.song == songName) {
-                        CURRENT = ' current';
-                    }
-                    return `
-    <div class="flex left-aligned gap sameWidth${CURRENT}" onclick="playSongFromList(${i})">
-        <font>${i + 1}.</font>
-        <font>${s.song}</font>
-    </div>
-    `;
-                }).join('')}
-</div>`;
-            }
-            AlertL(`
+        }
+        AlertL(
+            `
 <h1>Details</h1>
 <div class="flex col center">
     <div class="flex left-aligned gap sameWidth">
@@ -420,23 +423,87 @@ const app = {
         <font style="color: gray;">Year:</font>
         <font>${albumYear}</font>
     </div>
-    <div class="separator"></div>
-    <div class="flex center gap sameWidth">
+    <div class="flex gap sameWidth">
         <font style="color: gray;">Album Art:</font>
-        <font><a href="${albumArt}" target="_blank">View</a></font>
+        <font><a href="${document.getElementById('albumArt').src}" target="_blank">View</a></font>
     </div>
-    <div class="flex center gap sameWidth">
+    <div class="flex gap sameWidth">
         <font style="color: gray;">Audio:</font>
         <font><a href="${audio.src}" target="_blank">View</a></font>
     </div>
-    ${LIST}
-    <div class="separator"></div>
-    <div class="flex center gap sameWidth">
-        <font style="color: gray;">© ReTrn 2022 - 2024. All rights reserved.</font>
-    </div>
+    <p>${copyright_info || ''}</p>
 </div>
 `, true, 'details');
-            alerts_toggled.push('details');
+        alerts_toggled.push('details');
+    },
+    queue: () => {
+        document.querySelector(':root').style.setProperty('--random-indicator', `'${emojis[Math.floor(Math.random() * emojis.length)]}'`);
+        if (alerts_toggled.includes('queue')) {
+            // remove from array
+            try {
+                $('#queue').style.animation = 'slideout .5s';
+                setTimeout(() => {
+                    try { $('#queue').remove(); } catch { }
+                    alerts_toggled.pop('queue');
+                }, 500);
+            } catch { }
+        } else {
+            let currentSong;
+            let LIST = '';
+            if (list_data.length > 0) {
+                LIST = `<div class="separator"></div>
+                <h1>Songs</h1>
+                    <div class="flex col left-aligned">
+                        ${list_data.map((s, i) => {
+                    let CURRENT = '';
+                    if (s.song === songName && s.album === albumName && s.artist === artistName) {
+                        CURRENT = ' current';
+                        currentSong = s;
+                    }
+                    return `
+                    <div class="flex left-aligned gap sameWidth${CURRENT} queued-list-item" onclick="playSongFromList(${i})">
+                        <img src="${s.album_art_direct_url || paths.img + s.album + img_ext}">
+                        <div class="info">
+                            <font class="title">${s.song}</font>
+                            <font class="artist">${s.artist}</font>
+                        </div>
+                    </div>
+                `;
+                }).join('')}</div>`;
+            }
+
+
+            let current_mode = 'repeat';
+            if (localStorage.getItem('shuffle') == 'true') {
+                current_mode = 'shuffle';
+            }
+            if (localStorage.getItem('loop') == 'true') {
+                current_mode = 'loop';
+            }
+
+            AlertL(`
+                <h1>Queue</h1>
+                    <div class="flex col center">
+                        <div class="separator"></div>
+                    </div>
+                    <div class="flex left-aligned gap sameWidth current large queued-list-item">
+                        <img src="${currentSong.album_art_direct_url || paths.img + currentSong.album + img_ext}" class="currentCover">
+                        <div class="info">
+                            <font class="title">${currentSong.song}</font>
+                            <font class="artist">${currentSong.artist}</font>
+                        </div>
+                        <span class="play-mode" data-mode="${current_mode}" onclick="changeMode(this);">
+                            <icon data-icon="${current_mode}"></icon>
+                        </span>
+                    </div>
+                <div class="flex col center">
+                    ${LIST}
+                    <div class="separator"></div>
+                </div>
+            `, true, 'queue');
+            alerts_toggled.push('queue');
+            icons();
+            document.querySelector('.currentCover').addEventListener('click', imageControls);
         }
     }
 }
@@ -490,6 +557,33 @@ function mediaSession() {
 
 mediaSession();
 
+const st = {
+    repeat: 'Loop The List',
+    shuffle: 'Shuffle All Songs',
+    loop: 'Loop This Song'
+}
+
+function changeMode(e) {
+    let mode = e.getAttribute('data-mode');
+    let modes = ['repeat', 'shuffle', 'loop'];
+    let current = modes.indexOf(mode);
+    let next = modes[current + 1] || modes[0];
+    Alert(st[next], 'success');
+    e.setAttribute('data-mode', next);
+    e.innerHTML = `<icon data-icon="${next}"></icon>`;
+    if (next == 'repeat') {
+        localStorage.setItem('shuffle', 'false');
+        localStorage.setItem('loop', 'false');
+    } else if (next == 'shuffle') {
+        localStorage.setItem('shuffle', 'true');
+        localStorage.setItem('loop', 'false');
+    } else if (next == 'loop') {
+        localStorage.setItem('shuffle', 'false');
+        localStorage.setItem('loop', 'true');
+    }
+    icons();
+}
+
 
 var loaded_icons = {};
 
@@ -539,6 +633,10 @@ function preloadIcon(icon) {
     }
 }
 
+let preloadList = ['shuffle', 'loop', 'repeat'];
+
+preloadList.forEach((icon) => preloadIcon(icon));
+
 var folders = document.getElementsByClassName('folder');
 var sets = document.getElementsByClassName('set');
 // if a set contains more than one folder, add a class 'line' to the folders exclude the last one
@@ -553,3 +651,7 @@ for (var i = 0; i < sets.length; i++) {
         }
     }
 }
+
+let emojis = ['🎹', '🎶', '🏫', '😍', '😄', '⚔️', '🎼', '➡️', '👋🏻', '✔️', '😡', '🖊️', '📜', '🎤', '🏆', '😎', '👉🏻', '😁', '😍', '😘', '🥰', '😗', '😝', '👻', '🪡', '💎', '💍', '🪄', '🧸', '🎷', '🎻', '🎹', '📻', '🪗'];
+
+if (CSS && 'paintWorklet' in CSS) CSS.paintWorklet.addModule('https://unpkg.com/smooth-corners');

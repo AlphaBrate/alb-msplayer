@@ -7,6 +7,10 @@ function playSong() {
     // Change button#toggle 's innerHTML to 'pause.svg'
     var toggleIcon = document.getElementById('toggleIcon');
     toggleIcon.src = 'assets/icons/controls/pause.svg';
+    // .active play-state
+    document.querySelectorAll('.active').forEach(e => {
+        e.style.animationPlayState = 'running';
+    });
 }
 
 if (localStorage.getItem('autoplay') === 'true') {
@@ -24,10 +28,16 @@ function toggleSong() {
         audio.pause();
         toggle.setAttribute('data-playing', 'false');
         toggleIcon.src = toggleIcons[0];
+        document.querySelectorAll('.active').forEach(e => {
+            e.style.animationPlayState = 'paused';
+        });
     } else {
         audio.play();
         toggle.setAttribute('data-playing', 'true');
         toggleIcon.src = toggleIcons[1];
+        document.querySelectorAll('.active').forEach(e => {
+            e.style.animationPlayState = 'running';
+        });
     }
     setTimeCursor();
 }
@@ -47,6 +57,8 @@ function checkPlaying() {
     var currentSecond = Math.floor(currentTime % 60);
     var totalMinute = Math.floor(totalDuration / 60);
     var totalSecond = Math.floor(totalDuration % 60);
+
+
     if (currentSecond < 10) {
         currentSecond = '0' + currentSecond;
     }
@@ -73,15 +85,17 @@ function checkPlaying() {
     }
 }
 setInterval(() => {
-    checkPlaying();
-    setTimeCursor();
-}, 100);
+    try { updateColor(); } catch { }
+    try { checkPlaying(); } catch { }
+    try { setTimeCursor(); } catch { }
+    try { updateLyrics(); } catch { }
+}, 30);
 
 // Set time cursor
 function setTimeCursor() {
     var audio = document.getElementById('audio');
-    var currentTime = audio.currentTime;
-    var duration = audio.duration;
+    var currentTime = audio.currentTime || 0;
+    var duration = audio.duration || 100;
     var percentage = currentTime / duration * 100;
     document.getElementById('tc').value = percentage;
     // Set time
@@ -118,21 +132,32 @@ function playSongFromList(i) {
         i = list_data.length - 1;
     }
     let song = list_data[i];
+    document.title = `${song.song} - ${song.artist} | ${song.album}`;
     searchParams.set('song', song.song);
     searchParams.set('artist', song.artist);
     searchParams.set('album', song.album);
     searchParams.set('year', song.year);
+    copyright_info = song.copyright;
+    if (song.source) searchParams.set('source', song.source);
+    if (song.lyrics) searchParams.set('lyrics', song.lyrics);
+    else searchParams.set('lyrics', '');
     if (song.song_direct_url) searchParams.set('song_direct_url', song.song_direct_url);
+        else searchParams.delete('song_direct_url');
     if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
+        else searchParams.delete('album_art_direct_url');
     if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
+        else searchParams.delete('detail_direct_url');
     searchParams.set('index', i + 1);
     window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
+
+    source = searchParams.get('source') || 'Unknown';
+    lyrics = searchParams.get('lyrics') || void 0;
     // change song src
     var audio = document.getElementById('audio');
-    audio.src = paths.sounds + song.song + ado_ext;
+    audio.src = song_direct_url || paths.sounds + '/' + source;
     // change album art
     var albumArt = document.getElementById('albumArt');
-    let img = paths.img + song.album + img_ext;
+    let img = searchParams.get('album_art_direct_url') || paths.img + song.album + img_ext;
     albumArt.src = img;
     // change song title
     var songTitle = document.getElementById('title');
@@ -160,6 +185,8 @@ function playSongFromList(i) {
     document.body.style.backgroundImage = 'url(' + encodeURIComponent(img) + ')';
     playSong();
 
+    setLyrics();
+
     // Change variables
     songName = song.song;
     artistName = song.artist;
@@ -176,18 +203,14 @@ function playSongFromList(i) {
             artwork: [{ src: img, sizes: '512x512', type: 'image/png' }]
         });
     }
-    if (alerts_toggled.includes('details')) {
-        app.details();
-        setTimeout(() => {
-            app.details();
-        }, 1000);
+    if (alerts_toggled.includes('queue')) {
+        app.queue();
     }
 }
 
 function next() {
     // Go to next song in the list
     let currentSongIndex = searchParams.get('index') - 1;
-    console.log(currentSongIndex);
     let nextSongIndex = currentSongIndex + 1;
 
     if (localStorage.getItem('shuffle') === 'true') {
@@ -201,7 +224,6 @@ document.getElementById('next').addEventListener('click', next);
 var songEnded = () => {
     // What to do when song ended
     // if loop is false and autoplay is true, go to next song
-    console.log(localStorage);
     if (localStorage.getItem('loop') != 'true' && localStorage.getItem('autoplay') == 'true') {
         next();
     }
@@ -239,6 +261,7 @@ document.getElementById('prev').addEventListener('click', previous);
 document.body.addEventListener('keydown', function (e) {
     // Spacebar
     if (e.which === 32) {
+        e.preventDefault();
         toggleSong();
     }
     // Left arrow, go five seconds back
@@ -257,3 +280,21 @@ document.body.addEventListener('keydown', function (e) {
     }
 });
 
+
+// Double click to skip to next song
+// Triple click to skip to previous song
+var clicks = 0;
+var timer, timeout = 200;
+
+function imageControls() {
+    clearTimeout(timer);
+    clicks++;
+    timer = setTimeout(function () {
+        if (clicks == 1) toggleSong();
+        if (clicks == 2) nextSong();
+        if (clicks == 3) previousSong();
+        clicks = 0;
+    }, timeout);
+}
+
+document.getElementById('albumArt').addEventListener('click', imageControls);

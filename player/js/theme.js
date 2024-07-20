@@ -15,31 +15,27 @@ function theme(t) {
 }
 
 var immerse = (e) => {
-    // Add style sheet to document
-    removetheme();
-    theme('player.css');
-    theme('themes/immerse.css');
-    e.getElementsByTagName('img')[0].src = 'assets/icons/contextMenu/immersive_filled.svg';
-    e.onclick = () => normal(e);
-    localStorage.setItem('theme', 'immerse');
+    if (searchParams.get('lyrics') != '') {
+        var style = document.createElement('link');
+        style.rel = 'stylesheet';
+        style.href = 'themes/immerse.css';
+        style.id = 'immerse';
+        document.head.appendChild(style);
+        e.getElementsByTagName('img')[0].src = 'assets/icons/contextMenu/immersive_filled.svg';
+        e.onclick = () => normal(e);
+        localStorage.setItem('theme', 'immerse');
+    } else {
+        Alert('No lyrics found for this song.')
+    }
 }
 
 var normal = (e) => {
     // Add style sheet to document
-    removetheme();
-    theme('player.css');
     try {
         e.getElementsByTagName('img')[0].src = 'assets/icons/contextMenu/immersive_stroke.svg';
         e.onclick = () => immerse(e);
+        document.getElementById('immerse').remove();
     } catch { }
-
-    if (localStorage.getItem('theme') == 'immerse') {
-        if (innerWidth < innerHeight) {
-            removetheme();
-            theme('player.css');
-            theme('themes/mobile.css');
-        }
-    }
 
     localStorage.setItem('theme', 'normal');
 
@@ -47,40 +43,27 @@ var normal = (e) => {
 
 var mobile = () => {
     // Add style sheet to document
-    normal();
-    removetheme();
-    theme('player.css');
-    theme('themes/mobile.css');
+    var style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = 'themes/mobile.css';
+    style.id = 'mobile';
+    document.head.appendChild(style);
 }
 
 var resize_TO;
 window.addEventListener('resize', function () {
     clearTimeout(resize_TO);
-    resize_TO = setTimeout(function () {
-        if (innerWidth < innerHeight) mobile();
-        else normal();
-    }, 500);
+    try {
+        resize_TO = setTimeout(function () {
+            if (innerWidth < innerHeight) mobile();
+            else document.getElementById('mobile').remove();
+        }, 500);
+    } catch { }
 });
 
 if (innerWidth < innerHeight) mobile();
-else normal();
 
-// SET UP YOUR OWN THEME HERE.
-
-
-if (localStorage.getItem('theme') == 'immerse') {
-    immerse();
-}
-
-if (localStorage.getItem('theme') == 'desktop') {
-    desktop();
-}
-
-function themeSelect() {
-}
-
-function getAverageRGB(imgEl, dim = 0.5) {
-
+function getAverageRGB(imgEl, dim = 0.5, if_bottom = false) {
     var blockSize = 5, // only visit every 5 pixels
         defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
         canvas = document.createElement('canvas'),
@@ -105,6 +88,9 @@ function getAverageRGB(imgEl, dim = 0.5) {
     context.fillStyle = 'rgba(0, 0, 0, ' + dim + ')';
     context.fillRect(0, 0, width, height);
 
+    // blur
+    context.filter = 'blur(79px) saturate(1.8)';
+
     try {
         data = context.getImageData(0, 0, width, height);
     } catch (e) {
@@ -112,13 +98,23 @@ function getAverageRGB(imgEl, dim = 0.5) {
         return defaultRGB;
     }
 
-    length = data.data.length;
+    var startY, endY;
+    if (if_bottom) {
+        startY = height * 0.9;
+        endY = height;
+    } else {
+        startY = 0;
+        endY = height * 0.1;
+    }
 
-    while ((i += blockSize * 4) < length) {
-        ++count;
-        rgb.r += data.data[i];
-        rgb.g += data.data[i + 1];
-        rgb.b += data.data[i + 2];
+    for (let y = startY; y < endY; y += blockSize) {
+        for (let x = 0; x < width; x += blockSize) {
+            let index = (y * width + x) * 4;
+            count++;
+            rgb.r += data.data[index];
+            rgb.g += data.data[index + 1];
+            rgb.b += data.data[index + 2];
+        }
     }
 
     // ~~ used to floor values
@@ -139,15 +135,35 @@ function makeRgb(a) {
     return `rgb(${a.r}, ${a.g}, ${a.b})`;
 }
 
-function updateColor() {
-    var rgb = getAverageRGB(document.getElementById('albumArt'));
-    rgb_color = makeRgb(rgb);
+let prev_hex;
 
-    var hex = rgb_color.replace(/rgb\(|\)|\s/g, '').split(',').map(function (x) {
+function updateColor() {
+    let rgb = getAverageRGB(document.getElementById('albumArt'));
+    let rgb_color = makeRgb(rgb);
+
+    let hex = rgb_color.replace(/rgb\(|\)|\s/g, '').split(',').map(function (x) {
+        x = parseInt(x).toString(16);
+        return (x.length == 1) ? '0' + x : x;
+    }).join('');
+    if (prev_hex != hex) {
+        if (document.querySelector('meta[name="theme-color"]')) {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', hex);
+        } else {
+            document.head.innerHTML += `<meta name="theme-color" content="${hex}">`;
+        }
+        prev_hex = hex;
+    }
+
+    let rgb_color_bottom = makeRgb(getAverageRGB(document.getElementById('albumArt'), 0.5, true));
+    let hex_bottom = rgb_color_bottom.replace(/rgb\(|\)|\s/g, '').split(',').map(function (x) {
         x = parseInt(x).toString(16);
         return (x.length == 1) ? '0' + x : x;
     }).join('');
 
-    document.head.innerHTML += `<meta name="theme-color" content="#${hex}">`;
+    document.body.style.backgroundColor = '#' + hex_bottom;
+
+    // set to :root
+    document.documentElement.style.setProperty('--color', rgb_color);
+    document.documentElement.style.setProperty('--color_bottom', rgb_color_bottom);
 }
 

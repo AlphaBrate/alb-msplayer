@@ -102,7 +102,7 @@ document.body.addEventListener('click', function (e) {
         menu.style.animation = 'none';
         menu.style.pointerEvents = 'none';
     }
-    if (alert_boxes.length > 0 && t.className === 'player' || t.id === 'albumArt') {
+    if (alert_boxes.length > 0 && t.className === 'player' || t.id === 'albumArt' || t.className == 'theme-color-transit' || t.className == 'l-line' || t.className == 'removed-active' || t.className == 'lyrics') {
         alert_boxes[alert_boxes.length - 1].style.animation = 'slideout .5s';
         // remove from array
         try {
@@ -118,6 +118,9 @@ document.body.addEventListener('click', function (e) {
             setTimeout(() => {
                 alert_boxes[alert_boxes.length - 1].remove();
                 alert_boxes.pop();
+                if (alert_boxes.length == 0) {
+                    document.querySelector('.player').style.pointerEvents = 'all';
+                }
             }, 500);
         } catch { }
     }
@@ -143,21 +146,17 @@ document.addEventListener('keydown', function (e) {
         e.preventDefault();
         app.share();
     }
-});
-
-// Ctrl + Alt + S event
-document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.altKey && e.key === 's') {
+    else if (e.ctrlKey && e.altKey && e.key === 's') {
         e.preventDefault();
         app.settings();
     }
-});
-
-// Ctrl + D event
-document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && e.key === 'd') {
+    else if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();
         app.details();
+    }
+    else if (e.ctrlKey && e.key === 'q') {
+        e.preventDefault();
+        app.queue();
     }
 });
 
@@ -202,6 +201,7 @@ document.body.addEventListener('touchend', function (e) {
         var y = e.changedTouches[0].clientY;
         var dy = y - touch.start_y;
         var percentage = dy / window.innerHeight * 100;
+
         if (percentage > 30) {
             e.target.style.transition = 'transform 0.5s';
             e.target.style.transform = 'translateY(100%)';
