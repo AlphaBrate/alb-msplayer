@@ -1,0 +1,73 @@
+{
+    "list": {
+        "type": "playlist",
+        "name": "belcanto",
+        "title": "Bel Canto"
+    },
+    "songs": [
+        {
+            "song": "Nessun Dorma!",
+            "album": "Turandot",
+            "artist": "Luciano Pavarotti",
+            "year": 1973,
+            "source": "Puccini_ Turandot, SC 91, Act III - Nessun dorma!.mp3",
+            "lyrics": "Pavarotti - Nessun dorma.lrc"
+        },
+        {
+            "song": "O del mio dolce ardor",
+            "album": "The Incomparable Gigli",
+            "artist": "Beniamino Gigli",
+            "year": 1932,
+            "source": "O Del Mio Dolce Ardor.mp3",
+            "lyrics": "Gigli - O del mio dolce ardor.lrc"
+        },
+        {
+            "song": "Giail sole dal gange",
+            "album": "Christmas with Pavarotti",
+            "artist": "Luciano Pavarotti",
+            "year": 1996,
+            "source": "A. Scarlatti_ L'honestà negli amori_ Già il sole dal Gange (Remastered 2013).mp3",
+            "lyrics": "A. Scarlatti_ L'honestà negli amori_ Già il sole dal Gange (Remastered 2013).lrc"
+        },
+        {
+            "song": "Caro mio ben",
+            "album": "The People's Tenor",
+            "artist": "Luciano Pavarotti",
+            "year": 1997,
+            "source": "T. Giordani_ Caro mio ben.mp3",
+            "lyrics": "T. Giordani_ Caro mio ben.lrc"
+        },
+        {
+            "song": "La donna è mobile",
+            "album": "The People's Tenor",
+            "artist": "Luciano Pavarotti",
+            "year": 1997,
+            "source": "Verdi_ Rigoletto  Act 3_ La donna è mobile.mp3",
+            "lyrics": "Verdi_ Rigoletto  Act 3_ La donna è mobile.lrc"
+        },
+        {
+            "song": "O sole mio",
+            "album": "O sole mio",
+            "artist": "Enrico Caruso",
+            "year": 1916,
+            "source": "O' sole mio.mp3",
+            "lyrics": "O' sole mio.lrc"
+        },
+        {
+            "song": "Etude Op. 10, no. 12 in C minor - 'Revolutionary'",
+            "album": "The Classic Suit",
+            "artist": "Frédéric Chopin",
+            "year": 1831,
+            "source": "Chopin_ Etude Op. 10, no. 12 in C minor - 'Revolutionary'.mp3",
+            "copyright" : "Track: Chopin - Etude Op. 10, no. 12 in C minor - 'Revolutionary' [Copyright Free]\nMusic provided by Classical Music Copyright Free [https://tinyurl.com/visit-cmcf]"
+        },
+        {
+            "song": "The Nutcracker Suite: Pas de Deux variations",
+            "album": "The Classic Suit",
+            "artist": "Pyotr Ilyich Tchaikovsky",
+            "year": 1892,
+            "source": "Tchaikovsky - The Nutcracker Suite, op. 71a - Act II, No.12. Pas de Deux variations.mp3",
+            "copyright" : "Track: Tchaikovsky - The Nutcracker Suite, op. 71a - Act II, No.12. Pas de Deux variations\nMusic provided by Classical Music Copyright Free [https://tinyurl.com/visit-cmcf]"
+        }
+    ]
+}

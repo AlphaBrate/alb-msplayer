@@ -1,0 +1,57 @@
+{
+    "list": {
+        "type": "playlist",
+        "name": "classical",
+        "title": "Classics"
+    },
+    "songs": [
+        {
+            "song": "O del mio dolce ardor",
+            "album": "The Incomparable Gigli",
+            "artist": "Beniamino Gigli",
+            "year": 1932,
+            "source": "O Del Mio Dolce Ardor.mp3",
+            "lyrics": "Gigli - O del mio dolce ardor.lrc"
+        },
+        {
+            "song": "O sole mio",
+            "album": "O sole mio",
+            "artist": "Enrico Caruso",
+            "year": 1916,
+            "source": "O' sole mio.mp3",
+            "lyrics": "O' sole mio.lrc"
+        },
+        {
+            "song": "Etude Op. 10, no. 12 in C minor - 'Revolutionary'",
+            "album": "The Classic Suit",
+            "artist": "Frédéric Chopin",
+            "year": 1831,
+            "source": "Chopin_ Etude Op. 10, no. 12 in C minor - 'Revolutionary'.mp3",
+            "copyright" : "Track: Chopin - Etude Op. 10, no. 12 in C minor - 'Revolutionary' [Copyright Free]\nMusic provided by Classical Music Copyright Free [https://tinyurl.com/visit-cmcf]"
+        },
+        {
+            "song": "The Nutcracker Suite: Pas de Deux variations",
+            "album": "The Classic Suit",
+            "artist": "Pyotr Ilyich Tchaikovsky",
+            "year": 1892,
+            "source": "Tchaikovsky - The Nutcracker Suite, op. 71a - Act II, No.12. Pas de Deux variations.mp3",
+            "copyright" : "Track: Tchaikovsky - The Nutcracker Suite, op. 71a - Act II, No.12. Pas de Deux variations\nMusic provided by Classical Music Copyright Free [https://tinyurl.com/visit-cmcf]"
+        },
+        {
+            "song": "B. 150, Op. Posth. - Waltz in A minor",
+            "album": "The Classic Suit",
+            "artist": "Frédéric Chopin",
+            "year": 1843,
+            "source": "waltz-in-a-minor-chopin-classical-piano-216329.mp3",
+            "copyright": "Music by <a href=\"https://pixabay.com/users/calvinclavier-16027823/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=216329\">Calvin Clavier</a> from <a href=\"https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=216329\">Pixabay</a>"
+        },
+        {
+            "song": "Fantasia on Greensleeves",
+            "album": "The Classic Suit",
+            "artist": "Ralph Vaughan Williams",
+            "year": 1934,
+            "source": "Vaughan_Williams_-_Fantasia_on_Greensleeves.mp3",
+            "album_art_direct_url": "./assets/defaults/art/concert_band_classic_suit.webp"
+        }
+    ]
+}
