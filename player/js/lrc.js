@@ -16,18 +16,19 @@ function setLyrics() {
     LSName = songName;
     lyricsWithTime = [];
     layer = 0;
+    
+    if (searchParams.get('lyrics') == '') {
+        document.querySelector('.lyrics').innerHTML = '';
+        document.querySelector('.current-lyric').innerHTML = '';
+        normal();
+        return;
+    }
 
-    if (paths.lyrics + '/' + searchParams.get('lyrics') && searchParams.get('lyrics') != '') {
+    if (paths.lyrics + '/' + searchParams.get('lyrics')) {
         fetch(paths.lyrics + '/' + lyrics)
             .then(data => data.text())
             .then(text => {
                 let lrc = text.split('\n');
-                if (lrc.includes('<!DOCTYPE html>')) {
-                    document.querySelector('.lyrics').innerHTML = '';
-                    document.querySelector('.current-lyric').innerHTML = '';
-                    normal();
-                    return;
-                }
 
                 let lyrics_element = document.querySelector('.lyrics');
                 lrc.forEach(l => {
