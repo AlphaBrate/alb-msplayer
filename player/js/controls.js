@@ -55,8 +55,8 @@ function checkPlaying() {
     var totalDuration = audio.duration;
     var currentMinute = Math.floor(currentTime / 60);
     var currentSecond = Math.floor(currentTime % 60);
-    var totalMinute = Math.floor(totalDuration / 60);
-    var totalSecond = Math.floor(totalDuration % 60);
+    var totalMinute = Math.floor(totalDuration / 60) || '0';
+    var totalSecond = Math.floor(totalDuration % 60) || '0';
 
 
     if (currentSecond < 10) {
@@ -64,7 +64,7 @@ function checkPlaying() {
     }
     if (totalSecond < 10) {
         totalSecond = '0' + totalSecond;
-    }
+    }    
     duration.innerHTML = currentMinute + ':' + currentSecond + '/' + totalMinute + ':' + totalSecond;
 
     if (audio.paused) {
@@ -161,16 +161,10 @@ function playSongFromList(i) {
     albumArt.src = img;
     // change song title
     var songTitle = document.getElementById('title');
-    songTitle.innerHTML = song.song;
+    songTitle.innerHTML = `<span>${song.song}</span>`;
 
     // change font size
-    if (song.song.length > 20) {
-        songTitle.style.fontSize = '1.6rem';
-    } else if (songName.length > 30) {
-        songTitle.style.fontSize = '1.2rem';
-    } else {
-        songTitle.style.fontSize = '2rem';
-    }
+    changeFontSize(song.song);
 
     // change artist
     var artist = document.getElementById('artist');

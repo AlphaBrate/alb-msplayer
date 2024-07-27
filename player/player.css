@@ -196,12 +196,24 @@ span.switch.checked:active::after {
     position: absolute;
     top: 50%;
     left: 50%;
+    height: 100%;
     transform: translate(-50%, -50%);
-    width: 95%;
+    width: 100%;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    transition: all .3s, background .5s;
+    border-radius: 17px;
+
+    &.alerted {
+        transform: translate(-50%, -55%) scale(0.85);
+        background: var(--color);
+        pointer-events: none;
+        filter: saturate(180%) brightness(1.5);
+    }
 }
 
 .back {
@@ -321,10 +333,43 @@ body {
 }
 
 #title {
+    text-align: center;
     font-size: 46px;
     font-weight: 700;
+    width: 100%;
     color: white;
     margin: 15px;
+    white-space: nowrap;
+    --linear: linear-gradient(90deg, #00000000 0%, #000000 30%, #000000, #00000000 100%);
+    -webkit-mask: var(--linear);
+    mask: var(--linear);
+    transition: none;
+}
+
+#title.running span {
+    display: inline-block;
+    white-space: nowrap;
+    transition: 1s;
+    animation: running-scroll 10s infinite linear;
+}
+
+@media (max-width: 450px) {
+    #title.running span {
+        display: inline-block;
+        white-space: wrap;
+        transition: 1s;
+        animation: none;
+    }
+}
+
+@keyframes running-scroll {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
 .during {
@@ -506,6 +551,12 @@ a.small>img {
     }
 }
 
+@media (max-width: 450px) {
+    #contextMenu {
+        transition: .3s;
+    }
+}
+
 #contextMenu .item,
 #themeMenu .item {
     color: white;
@@ -592,7 +643,7 @@ img.icon {
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(90% - 3rem);
+    height: calc(93% - 3rem);
     border-radius: 27px 27px 0 0;
     padding: 2rem;
     display: flex;
@@ -796,6 +847,7 @@ button.alphabrate-styled-button {
         }
 
         &:active {
+            transform: scale(0.95);
             cursor: pointer;
             background: rgba(255, 255, 255, 0.05);
         }
@@ -810,7 +862,8 @@ button.alphabrate-styled-button {
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
 
-    .title {
+    .title,
+    .artist {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -895,4 +948,8 @@ button.alphabrate-styled-button {
 #details>div font {
     user-select: text;
     -webkit-user-select: text;
+}
+
+.currentCover:active {
+    transform: scale(0.95);
 }

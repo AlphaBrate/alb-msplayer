@@ -59,6 +59,7 @@ window.addEventListener('resize', function () {
             else document.getElementById('mobile').remove();
         }, 500);
     } catch { }
+    changeFontSize(songName);
 });
 
 if (innerWidth < innerHeight) mobile();

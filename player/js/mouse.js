@@ -103,7 +103,7 @@ document.body.addEventListener('click', function (e) {
         menu.style.pointerEvents = 'none';
     }
     if (alert_boxes.length > 0 && t.className === 'player' || t.id === 'albumArt' || t.className == 'theme-color-transit' || t.className == 'l-line' || t.className == 'removed-active' || t.className == 'lyrics') {
-        alert_boxes[alert_boxes.length - 1].style.animation = 'slideout .5s';
+        alert_boxes[alert_boxes.length - 1].style.animation = 'slideout .5s forwards';
         // remove from array
         try {
             let id = alert_boxes[alert_boxes.length - 1].id;
@@ -115,14 +115,18 @@ document.body.addEventListener('click', function (e) {
                 }
             }
 
+            if (alert_boxes.length - 1 == 0) {
+                let player = document.querySelector('.player');
+                player.classList.remove('alerted');
+            }
+
             setTimeout(() => {
                 alert_boxes[alert_boxes.length - 1].remove();
                 alert_boxes.pop();
-                if (alert_boxes.length == 0) {
-                    document.querySelector('.player').style.pointerEvents = 'all';
-                }
             }, 500);
-        } catch { }
+        } catch (e) {
+            console.log(e);
+        }
     }
 });
 
@@ -202,11 +206,17 @@ document.body.addEventListener('touchend', function (e) {
         var dy = y - touch.start_y;
         var percentage = dy / window.innerHeight * 100;
 
-        if (percentage > 30) {
+        if (percentage > 20) {
             e.target.style.transition = 'transform 0.5s';
             e.target.style.transform = 'translateY(100%)';
+            if (alert_boxes.length - 1 == 0) {
+                let player = document.querySelector('.player');
+                player.classList.remove('alerted')
+            }
+            
             setTimeout(() => {
                 e.target.remove();
+                alert_boxes.pop();
             }, 500);
         } else {
             e.target.style.transition = 'transform 0.5s';

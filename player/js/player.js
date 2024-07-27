@@ -47,7 +47,7 @@ if (list_a) {
             copyright_info = song.copyright;
             if (song.source) searchParams.set('source', song.source);
             if (song.lyrics) searchParams.set('lyrics', song.lyrics);
-                else searchParams.set('lyrics', '');
+            else searchParams.set('lyrics', '');
             if (song.song_direct_url) searchParams.set('song_direct_url', song.album_art_direct_url);
             if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
             if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
@@ -103,16 +103,29 @@ audio.src = song_direct_url || paths.sounds + source; // Change this to the path
 
 // Change song title
 var songTitle = document.getElementById('title');
-songTitle.innerHTML = songName;
+songTitle.innerHTML = `<span>${songName}</span>`;
 
 // For Title, try best make sure it's in one line, adjust font-size if needed
-if (songName.length > 20) {
-    songTitle.style.fontSize = '1.6rem';
-} else if (songName.length > 30) {
-    songTitle.style.fontSize = '1.2rem';
-} else {
+function changeFontSize(t) {
     songTitle.style.fontSize = '2rem';
+    songTitle.classList.remove('running');
+    if (t.length > 20) {
+        songTitle.style.fontSize = '1.6rem';
+    }
+    if (t.length > 30) {
+        songTitle.style.fontSize = '1.4rem';
+    }
+    if (t.length > 40) {
+        songTitle.style.fontSize = '1.3rem';
+    }
+
+    // if overflow
+    if (songTitle.scrollWidth > songTitle.clientWidth) {
+        songTitle.classList.add('running');
+    }
 }
+
+changeFontSize(songName);
 
 
 // Change artist
@@ -144,8 +157,7 @@ const AlertL = (html, scroll = false, id) => {
 
     document.body.appendChild(a);
     alert_boxes.push(a);
-
-    document.querySelector('.player').style.pointerEvents = 'none';
+    document.querySelector('.player').classList.add('alerted');
 }
 
 const $ = (s, a) => {
@@ -182,10 +194,11 @@ const Alert = (m = '', t = 'error', T = 3000, S) => {
     else icon = t;
 
 
-    $('.alert-icon').innerHTML = `<icon data-icon="${icon}" class="alert-icon stroke ${type_list[t] ? type_list[t].c : ''}"></icon>`;
+    if (icon) {
+        $('.alert-icon').innerHTML = `<icon data-icon="${icon}" class="alert-icon stroke ${type_list[t] ? type_list[t].c : ''}"></icon>`;
+        icons();
+    }
     $('.alert-text').innerHTML = m;
-
-    icons();
 
     $('.alert').classList.add('show');
 
@@ -504,6 +517,11 @@ const app = {
             alerts_toggled.push('queue');
             icons();
             document.querySelector('.currentCover').addEventListener('click', imageControls);
+            document.querySelectorAll('.current.large.queued-list-item>.info>font').forEach(w => {
+                w.addEventListener('click', () => {
+                    Alert(w.innerText, '')
+                });
+            })
         }
     }
 }
