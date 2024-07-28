@@ -9,6 +9,7 @@
 #year,
 .current-lyric {
     display: none;
+    animation: disappear 2s forwards;
 }
 
 .player {
@@ -51,6 +52,21 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+    }
+
+    animation: lyrics-appear .5s;
+}
+
+@keyframes lyrics-appear {
+    0% {
+        opacity: 0;
+        height: 50%;
+
+    }
+
+    100% {
+        opacity: 1;
+        height: 60%;
     }
 }
 

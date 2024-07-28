@@ -453,6 +453,10 @@ const app = {
         document.querySelector(':root').style.setProperty('--random-indicator', `'${emojis[Math.floor(Math.random() * emojis.length)]}'`);
         if (alerts_toggled.includes('queue')) {
             // remove from array
+            if (alert_boxes.length - 1 >= 0) {
+                let player = document.querySelector('.player');
+                player.classList.remove('alerted')
+            }
             try {
                 $('#queue').style.animation = 'slideout .5s';
                 setTimeout(() => {
