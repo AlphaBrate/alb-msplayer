@@ -48,6 +48,8 @@ FREE TO USE, NO LICENSE REQUIRED
 - Immersive Mode
 - Dynamic Lyrics (LRC)
 
+<a href="https://www.youtube.com/watch?v=tuat0lipxMo">Functional Demo on YouTube</a>
+
 ---
 
 ## 🚀 Getting Started
