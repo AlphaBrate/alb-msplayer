@@ -9,6 +9,8 @@ let lyrics_setup = {
 
 let LSName;
 
+let noNextAlert = false;
+
 function setLyrics() {
     if (songName == LSName) return;
 
@@ -16,11 +18,14 @@ function setLyrics() {
     LSName = songName;
     lyricsWithTime = [];
     layer = 0;
-    
+
     if (searchParams.get('lyrics') == '') {
         document.querySelector('.lyrics').innerHTML = '';
         document.querySelector('.current-lyric').innerHTML = '';
-        normal();
+
+        noNextAlert = true;
+        document.querySelector('#lyrics_trig').click();
+
         return;
     }
 
@@ -239,7 +244,5 @@ function updateLyrics() {
         }
 
         document.querySelector('.current-lyric').innerHTML = document.querySelector('.inline').innerText;
-    } catch {
-
-    }
+    } catch { }
 }

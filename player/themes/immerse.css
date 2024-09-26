@@ -108,7 +108,7 @@
     margin: 0;
 }
 
-#tc {
+.cursor {
     width: 60vw;
     max-width: 300px;
 }

@@ -25,7 +25,11 @@ var immerse = (e) => {
         e.onclick = () => normal(e);
         localStorage.setItem('theme', 'immerse');
     } else {
-        Alert('No lyrics found for this song.')
+        if (!noNextAlert) {
+            pujs.alert('No lyrics found for this song.')
+        } else {
+            noNextAlert = false;
+        }
     }
 }
 

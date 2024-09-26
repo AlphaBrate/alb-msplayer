@@ -4,12 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-title" content="Music Player">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Music Player</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://alb-cdn.web.app/popupjs/pu.min.css">
     <!-- theme color -->
     <link rel="stylesheet" href="player.css">
 </head>
@@ -38,11 +41,6 @@
             Lyrics
         </div>
     </div>
-    <div class="alert">
-        <div class="alert-icon"></div>
-        <div class="alert-text"></div>
-    </div>
-    <div id="large-alert"></div>
     <div class="back"></div>
     <div class="theme-color-transit"></div>
     <span id="time">--:--</span>
@@ -71,11 +69,15 @@
                         <img src="assets/icons/controls/next.svg">
                     </button>
                 </div>
-                <input type="range" name="timecursor" id="tc" value="0" min="0" max="100">
+                <div class="cursor">
+                    <input type="range" name="timecursor" class="timecursor" id="tc" value="0" min="0" max="100">
+                    <input type="range" name="timeprogress" class="timeprogress" id="progress" value="0" min="0" max="100">
+                </div>
                 <font style="color: gray; opacity: 0;" id="duration">--:--/--:--</font>
             </div>
         </div>
     </div>
+    <script src="https://alb-cdn.web.app/popupjs/pu.min.js"></script>
     <script src="js/mouse.js"></script>
     <script src="js/player.js"></script>
     <script src="js/controls.js"></script>

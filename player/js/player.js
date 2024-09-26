@@ -1,3 +1,6 @@
+pujs.setup.icons_path = 'assets/icons/contextMenu/';
+pujs.setup.init();
+
 const paths = {
     img: 'assets/defaults/art/',
     sounds: 'assets/defaults/music/',
@@ -21,7 +24,7 @@ if (list_a) {
             list_data = data.songs;
 
             if (songs.length == 0) {
-                Alert('No songs in this list.', 'error', 2000);
+                pujs.alert('No songs in this list.', 'error', 2000);
                 return;
             }
 
@@ -30,7 +33,7 @@ if (list_a) {
             if (searchParams.get('index')) {
                 var index = searchParams.get('index');
                 if (index > songs.length) {
-                    Alert('Invalid index.', 'error', 2000);
+                    pujs.alert('Invalid index.', 'error', 2000);
                     return;
                 }
                 var song = songs[index - 1];
@@ -138,73 +141,22 @@ album.innerHTML = albumName;
 var year = document.getElementById('year');
 year.innerHTML = albumYear;
 
-var alert_boxes = [];
-
 let originalBGC;
 
-const AlertL = (html, scroll = false, id) => {
+pujs.setup.todo.pullOut.start = () => {
     originalBGC = document.body.style.backgroundColor;
     document.body.style.backgroundColor = 'rgba(46, 46, 46, 0.989)';
-    var a = document.createElement('div');
-    a.innerHTML = html;
-    a.className = 'large-alert';
-    if (scroll) {
-        a.style.display = 'block';
-        a.style.overflowY = 'scroll';
-    };
-
-    if (id) a.id = id;
-
-    document.body.appendChild(a);
-    alert_boxes.push(a);
     document.querySelector('.player').classList.add('alerted');
-}
+};
+
+pujs.setup.todo.pullOut.ending = () => {
+    document.body.style.backgroundColor = originalBGC;
+    document.querySelector('.player').classList.remove('alerted');
+};
 
 const $ = (s, a) => {
     if (a) return document.querySelectorAll(s);
     return document.querySelector(s);
-};
-
-var AlertTimeout;
-
-const Alert = (m = '', t = 'error', T = 3000, S) => {
-    if (AlertTimeout) clearTimeout(AlertTimeout);
-
-    if (S) {
-        $('.alert-text').style.userSelect = 'text';
-        $('.alert-text').style.pointerEvents = 'auto';
-    } else {
-        $('.alert-text').style.userSelect = 'none';
-        $('.alert-text').style.pointerEvents = 'none';
-    }
-    let type_list = {
-        error: {
-            i: 'close',
-            c: 'color-red'
-        },
-        success: {
-            i: 'check',
-            c: 'bg-green'
-        },
-    };
-
-    let icon;
-
-    if (type_list[t]) icon = type_list[t].i || 'close';
-    else icon = t;
-
-
-    if (icon) {
-        $('.alert-icon').innerHTML = `<icon data-icon="${icon}" class="alert-icon stroke ${type_list[t] ? type_list[t].c : ''}"></icon>`;
-        icons();
-    }
-    $('.alert-text').innerHTML = m;
-
-    $('.alert').classList.add('show');
-
-    AlertTimeout = setTimeout(() => {
-        $('.alert').classList.remove('show');
-    }, T);
 };
 
 oneLinkHref = () => {
@@ -217,13 +169,16 @@ oneLinkHref = () => {
     return location.origin + location.pathname + '?s=' + encodeURI(JSON.stringify(search_json));
 };
 
-var alerts_toggled = [];
-
 const app = {
     share: () => {
-        if (!alerts_toggled.includes('share')) {
-            alerts_toggled.push('share');
-            AlertL(`
+        let start = true;
+        pujs.pullOutAlerts.forEach((a) => {
+            if (a.id == 'share') {
+                start = false;
+            }
+        });
+        if (start) {
+            pujs.pullOut(`
 <h1>Share This Song</h1>
 <button class="alphabrate-styled-button" onclick="app.copyLink()">
     <img src="assets/icons/contextMenu/link.svg">
@@ -246,16 +201,10 @@ const app = {
     <img src="assets/icons/contextMenu/ar.svg">
     <span>Share form your Device</span>
 </button>
-`, false, 'share');
-        } else {
-            $('#share').style.animation = 'slideout .5s';
-            // remove from array
-            try {
-                setTimeout(() => {
-                    $('#share').remove();
-                    alerts_toggled.pop('share');
-                }, 500);
-            } catch { }
+`, false, {
+                id: 'share',
+                lockscreen: false
+            });
         }
     },
     shareApp: () => {
@@ -268,25 +217,31 @@ const app = {
             }).then(() => {
                 // 
             }).catch((error) => {
-                Alert('Failed to share.', 'error', 2000);
+                pujs.alert('Failed to share.', 'error', 2000);
             });
         } else {
-            Alert('Your device does not support sharing.', 'error', 2000);
+            pujs.alert('Your device does not support sharing.', 'error', 2000);
         }
     },
     copyLink: () => {
 
         try {
             navigator.clipboard.writeText(oneLinkHref());
-            Alert('Copied to clipboard.', 'success', 2000)
+            pujs.alert('Copied to clipboard.', 'success', 2000)
         } catch {
-            Alert('Failed to copy link.', 'error', 2000);
+            pujs.alert('Failed to copy link.', 'error', 2000);
         }
     },
     settings: () => {
-        if (!alerts_toggled.includes('settings')) {
-            alerts_toggled.push('settings');
-            AlertL(`
+        let start = true;
+        pujs.pullOutAlerts.forEach((a) => {
+            if (a.id == 'settings') {
+                start = false;
+            }
+        });
+
+        if (start) {
+            pujs.pullOut(`
 <div class"left-aligned">
     <h1>Settings</h1>
     <div class="flex left-aligned gap sameWidth">
@@ -320,33 +275,31 @@ const app = {
     <div class="separator"></div>
 
         <p align="center">Read <a href="https://alphabrate.github.io/articles/user-manuals/music-player">User Guide</a>.</p>
+        <p align="center"><a href="/">Back to Home</a>.</p>
 </div>
-        `, false, 'settings');
+        `, false, {
+                id: 'settings',
+                lockscreen: false
+            }).then(() => {
 
-            document.querySelectorAll('.switch').forEach((s) => {
-                s.addEventListener('click', () => {
-                    s.classList.toggle('checked');
+
+                document.querySelectorAll('.switch').forEach((s) => {
+                    s.addEventListener('click', () => {
+                        s.classList.toggle('checked');
+                    });
+                });
+
+
+                // get all items from local storage, check if there is a switch with the same s.id, if there is, add class checked
+                var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration', 'shuffle', 'lyricsLockScreen'];
+                settings.forEach((s) => {
+                    if (localStorage.getItem(s) == 'true') {
+                        var switch_ = document.getElementById('s.' + s);
+                        switch_.classList.add('checked');
+                    }
                 });
             });
 
-            // get all items from local storage, check if there is a switch with the same s.id, if there is, add class checked
-            var settings = ['autoplay', 'dev', 'lock', 'loop', 'duration', 'shuffle', 'lyricsLockScreen'];
-            settings.forEach((s) => {
-                if (localStorage.getItem(s) == 'true') {
-                    var switch_ = document.getElementById('s.' + s);
-                    switch_.classList.add('checked');
-                }
-            });
-        }
-        else {
-            $('#settings').style.animation = 'slideout .5s';
-            // remove from array
-            try {
-                setTimeout(() => {
-                    $('#settings').remove();
-                    alerts_toggled.pop('settings');
-                }, 500);
-            } catch { }
         }
 
     },
@@ -406,65 +359,59 @@ const app = {
         }
     },
     details: () => {
-        if (alerts_toggled.includes('details')) {
-            $('#details').style.animation = 'slideout .5s';
-            // remove from array
-            try {
-                setTimeout(() => {
-                    $('#details').remove();
-                    alerts_toggled.pop('details');
-                }, 500);
-            } catch { }
+        let start = true;
+        pujs.pullOutAlerts.forEach((a) => {
+            if (a.id == 'details') {
+                start = false;
+            }
+        });
+
+        if (start) {
+            pujs.pullOut(`
+                <h1>Details</h1>
+                <div class="flex col center">
+                    <div class="flex left-aligned gap sameWidth">
+                        <font style="color: gray;">Song Name:</font>
+                        <font>${songName}</font>
+                    </div>
+                    <div class="flex left-aligned gap sameWidth">
+                        <font style="color: gray;">Artist:</font>
+                        <font>${artistName}</font>
+                    </div>
+                    <div class="flex left-aligned gap sameWidth">
+                        <font style="color: gray;">Album:</font>
+                        <font>${albumName}</font>
+                    </div>
+                    <div class="flex left-aligned gap sameWidth">
+                        <font style="color: gray;">Year:</font>
+                        <font>${albumYear}</font>
+                    </div>
+                    <div class="flex gap sameWidth">
+                        <font style="color: gray;">Album Art:</font>
+                        <font><a href="${document.getElementById('albumArt').src}" target="_blank">View</a></font>
+                    </div>
+                    <div class="flex gap sameWidth">
+                        <font style="color: gray;">Audio:</font>
+                        <font><a href="${audio.src}" target="_blank">View</a></font>
+                    </div>
+                    <p>${copyright_info || ''}</p>
+                </div>
+                `, true, {
+                id: 'details',
+                lockscreen: false
+            });
         }
-        AlertL(
-            `
-<h1>Details</h1>
-<div class="flex col center">
-    <div class="flex left-aligned gap sameWidth">
-        <font style="color: gray;">Song Name:</font>
-        <font>${songName}</font>
-    </div>
-    <div class="flex left-aligned gap sameWidth">
-        <font style="color: gray;">Artist:</font>
-        <font>${artistName}</font>
-    </div>
-    <div class="flex left-aligned gap sameWidth">
-        <font style="color: gray;">Album:</font>
-        <font>${albumName}</font>
-    </div>
-    <div class="flex left-aligned gap sameWidth">
-        <font style="color: gray;">Year:</font>
-        <font>${albumYear}</font>
-    </div>
-    <div class="flex gap sameWidth">
-        <font style="color: gray;">Album Art:</font>
-        <font><a href="${document.getElementById('albumArt').src}" target="_blank">View</a></font>
-    </div>
-    <div class="flex gap sameWidth">
-        <font style="color: gray;">Audio:</font>
-        <font><a href="${audio.src}" target="_blank">View</a></font>
-    </div>
-    <p>${copyright_info || ''}</p>
-</div>
-`, true, 'details');
-        alerts_toggled.push('details');
     },
     queue: () => {
         document.querySelector(':root').style.setProperty('--random-indicator', `'${emojis[Math.floor(Math.random() * emojis.length)]}'`);
-        if (alerts_toggled.includes('queue')) {
-            // remove from array
-            if (alert_boxes.length - 1 >= 0) {
-                let player = document.querySelector('.player');
-                player.classList.remove('alerted')
+        let start = true;
+        pujs.pullOutAlerts.forEach((a) => {
+            if (a.id == 'queue') {
+                start = false;
             }
-            try {
-                $('#queue').style.animation = 'slideout .5s';
-                setTimeout(() => {
-                    try { $('#queue').remove(); } catch { }
-                    alerts_toggled.pop('queue');
-                }, 500);
-            } catch { }
-        } else {
+        });
+
+        if (start) {
             let currentSong;
             let LIST = '';
             if (list_data.length > 0) {
@@ -498,7 +445,7 @@ const app = {
                 current_mode = 'loop';
             }
 
-            AlertL(`
+            pujs.pullOut(`
                 <h1>Queue</h1>
                     <div class="flex col center">
                         <div class="separator"></div>
@@ -517,15 +464,19 @@ const app = {
                     ${LIST}
                     <div class="separator"></div>
                 </div>
-            `, true, 'queue');
-            alerts_toggled.push('queue');
-            icons();
-            document.querySelector('.currentCover').addEventListener('click', imageControls);
-            document.querySelectorAll('.current.large.queued-list-item>.info>font').forEach(w => {
-                w.addEventListener('click', () => {
-                    Alert(w.innerText, '')
+            `, true, {
+                id: 'queue',
+                lockscreen: false
+            }).then(() => {
+
+                icons();
+                document.querySelector('.currentCover').addEventListener('click', imageControls);
+                document.querySelectorAll('.current.large.queued-list-item>.info>font').forEach(w => {
+                    w.addEventListener('click', () => {
+                        pujs.alert(w.innerText, 'blank')
+                    });
                 });
-            })
+            });
         }
     }
 }
@@ -590,7 +541,7 @@ function changeMode(e) {
     let modes = ['repeat', 'shuffle', 'loop'];
     let current = modes.indexOf(mode);
     let next = modes[current + 1] || modes[0];
-    Alert(st[next], 'success');
+    pujs.alert(st[next], 'success');
     e.setAttribute('data-mode', next);
     e.innerHTML = `<icon data-icon="${next}"></icon>`;
     if (next == 'repeat') {

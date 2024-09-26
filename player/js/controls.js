@@ -1,4 +1,5 @@
 function playSong() {
+
     var audio = document.getElementById('audio');
     audio.play();
     // Change button#toggle 's data-playing to true
@@ -11,6 +12,15 @@ function playSong() {
     document.querySelectorAll('.active').forEach(e => {
         e.style.animationPlayState = 'running';
     });
+
+    // Update mediaSession
+
+    mediaSession();
+
+    // If lyrics is empty, show normal theme
+    if (searchParams.get('lyrics') === '') {
+        normal();
+    }
 }
 
 if (localStorage.getItem('autoplay') === 'true') {
@@ -64,7 +74,7 @@ function checkPlaying() {
     }
     if (totalSecond < 10) {
         totalSecond = '0' + totalSecond;
-    }    
+    }
     duration.innerHTML = currentMinute + ':' + currentSecond + '/' + totalMinute + ':' + totalSecond;
 
     if (audio.paused) {
@@ -98,6 +108,7 @@ function setTimeCursor() {
     var duration = audio.duration || 100;
     var percentage = currentTime / duration * 100;
     document.getElementById('tc').value = percentage;
+    document.getElementById('progress').value = percentage;
     // Set time
     var time = document.getElementById('time');
     var date = new Date();
@@ -116,6 +127,8 @@ document.getElementById('tc').addEventListener('input', function () {
     var duration = audio.duration;
     var currentTime = duration * percentage / 100;
     audio.currentTime = currentTime;
+
+    document.getElementById('progress').value = percentage;
 });
 
 const nextSong = () => next();
@@ -142,11 +155,11 @@ function playSongFromList(i) {
     if (song.lyrics) searchParams.set('lyrics', song.lyrics);
     else searchParams.set('lyrics', '');
     if (song.song_direct_url) searchParams.set('song_direct_url', song.song_direct_url);
-        else searchParams.delete('song_direct_url');
+    else searchParams.delete('song_direct_url');
     if (song.album_art_direct_url) searchParams.set('album_art_direct_url', song.album_art_direct_url);
-        else searchParams.delete('album_art_direct_url');
+    else searchParams.delete('album_art_direct_url');
     if (song.detail_direct_url) searchParams.set('detail_direct_url', song.detail_direct_url);
-        else searchParams.delete('detail_direct_url');
+    else searchParams.delete('detail_direct_url');
     searchParams.set('index', i + 1);
     window.history.pushState({}, '', location.pathname + '?' + searchParams.toString());
 
@@ -197,9 +210,8 @@ function playSongFromList(i) {
             artwork: [{ src: img, sizes: '512x512', type: 'image/png' }]
         });
     }
-    if (alerts_toggled.includes('queue')) {
-        app.queue();
-    }
+
+    pujs.pullOut.close('queue');
 }
 
 function next() {
